@@ -15,7 +15,7 @@ public class Tour implements Serializable{
     @GeneratedValue
     private Integer id;
 
-    @Column
+    @Column(unique = true)
     private String title;
 
     @Column(length = 2000)

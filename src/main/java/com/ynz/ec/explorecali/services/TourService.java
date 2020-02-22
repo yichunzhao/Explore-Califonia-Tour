@@ -9,8 +9,6 @@ import com.ynz.ec.explorecali.repo.TourRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-
 @Service
 public class TourService {
 
@@ -24,17 +22,19 @@ public class TourService {
     }
 
     public Tour createTour(String title, String description, String blurb, Integer price, String duration, String bullets,
-                           String keywords, String tourPackageCode, Difficulty difficulty, Region region) {
+                           String keywords, String tourPackageName, Difficulty difficulty, Region region) {
 
-        TourPackage found = tourPackageRepository.findByName(tourPackageCode).orElseThrow(() -> new RuntimeException("the tour package does not exited"));
-
-
-
+        //creating a tour that is associated with a tour package.(a tour package have multiple tours.)
+        TourPackage found = tourPackageRepository.findByName(tourPackageName).orElseThrow(() -> new RuntimeException("the tour package does not exited"));
 
         return tourRepository.save(new Tour(title, description, blurb, price, duration, bullets, keywords, found, difficulty, region));
     }
 
-    public Long total(){
+    public Iterable<Tour> lookup() {
+        return tourRepository.findAll();
+    }
+
+    public Long total() {
         return tourRepository.count();
     }
 
