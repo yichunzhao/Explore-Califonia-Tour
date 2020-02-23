@@ -42,6 +42,14 @@ public class TourRating {
         return comment;
     }
 
+    public void setScore(Integer score) {
+        this.score = score;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
     @Override
     public String toString() {
         return "TourRating{" +

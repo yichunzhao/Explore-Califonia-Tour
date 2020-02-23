@@ -56,6 +56,54 @@ public class TourRatingController {
         return new AbstractMap.SimpleEntry<String, Double>("average:", average.isPresent() ? average.getAsDouble() : null);
     }
 
+    //PUT -Update all non-key attributes
+    @PutMapping
+    public RatingDto updateWithPUt(@PathVariable("tourId") Integer tourId, @RequestBody @Validated RatingDto ratingDto) {
+        TourRating tourRating = verifyTourRating(tourId, ratingDto.getCustomerId());
+
+        if (ratingDto.getScore() != null) tourRating.setScore(ratingDto.getScore());
+        if (ratingDto.getComment() != null) tourRating.setComment(ratingDto.getComment());
+
+        return toDto(tourRatingRepository.save(tourRating));
+    }
+
+    //Patch - update partial non-key attributes
+    @PatchMapping
+    public RatingDto updateWithPatch(@PathVariable("tourId") Integer tourId, @RequestBody @Validated RatingDto ratingDto) {
+        TourRating tourRating = verifyTourRating(tourId, ratingDto.getCustomerId());
+
+        tourRating.setScore(ratingDto.getScore());
+        tourRating.setComment(ratingDto.getComment());
+
+        return toDto(tourRatingRepository.save(tourRating));
+    }
+
+    //Delete
+    @DeleteMapping(value = "/{customerId}")
+    public void delete(@PathVariable("tourId") Integer tourId, @PathVariable("customerId") Integer customerId) {
+        TourRating tourRating = verifyTourRating(tourId, customerId);
+        tourRatingRepository.delete(tourRating);
+    }
+
+    /**
+     * Convert domain model into DTO.
+     *
+     * @param tourRating instance.
+     * @return its corresponding DTO instance.
+     */
+    private RatingDto toDto(TourRating tourRating) {
+        return new RatingDto(tourRating.getScore(), tourRating.getComment(), tourRating.getRatingPK().getCustomerId());
+    }
+
+    /**
+     * Verify and return TourRating for a specific TourRating PK(tourId, CustomerId)
+     */
+    private TourRating verifyTourRating(Integer tourId, Integer customerId) {
+        return tourRatingRepository.findByRatingPKTourIdAndRatingPKCustomerId(tourId, customerId)
+                .orElseThrow(() -> new TourRatingNotFoundException("The TourRating is not found."));
+    }
+
+    //Patch -update one or more non-key attributes
     private Tour verifyTourId(Integer tourId) {
         return tourRepository.findById(tourId).orElseThrow(() -> new TourNotFoundException("tourId is not found."));
     }
@@ -64,6 +112,12 @@ public class TourRatingController {
     @ExceptionHandler(TourNotFoundException.class)
     @ResponseStatus(value = HttpStatus.NOT_FOUND)
     public String returnNotFound(TourNotFoundException e) {
+        return e.getMessage();
+    }
+
+    @ExceptionHandler(TourRatingNotFoundException.class)
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    public String returnTourRatingNotFound(TourRatingNotFoundException e) {
         return e.getMessage();
     }
 
