@@ -10,11 +10,9 @@ import java.util.Optional;
 @RepositoryRestResource(collectionResourceRel = "packages", path = "packages")
 public interface TourPackageRepository extends PagingAndSortingRepository<TourPackage, String> {
 
-    //controlling API exposure, so that the public is not allowed to modify the database.
+    //Controlling API exposure, so that the public is not allowed to modify the database.
     //Class annotation;  @RepositoryRestResource(exported = false)
     //method level; @RestResource(exported=false)
-
-
     Optional<TourPackage> findByName(String name);
 
     Optional<TourPackage> findByCode(String code);
