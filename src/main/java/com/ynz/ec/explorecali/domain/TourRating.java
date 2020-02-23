@@ -16,6 +16,9 @@ public class TourRating {
     @Column
     private String comment;
 
+    public TourRating() {
+    }
+
     /**
      * @param ratingPK primary key of a tour and customer id.
      * @param score    Integer score(1-5)
