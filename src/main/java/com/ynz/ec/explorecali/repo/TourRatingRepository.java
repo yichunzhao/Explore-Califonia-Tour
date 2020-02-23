@@ -2,6 +2,8 @@ package com.ynz.ec.explorecali.repo;
 
 import com.ynz.ec.explorecali.domain.TourRating;
 import com.ynz.ec.explorecali.domain.TourRatingPK;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
@@ -21,6 +23,14 @@ public interface TourRatingRepository extends CrudRepository<TourRating, TourRat
      * @return a lit of any found {@link TourRating}
      */
     List<TourRating> findByRatingPKTourId(Integer tourId);
+
+    /**
+     * Page and sorting API
+     * @param tourId
+     * @param pageable
+     * @return
+     */
+    Page<TourRating> findByRatingPKTourId(Integer tourId, Pageable pageable);
 
 
     /**

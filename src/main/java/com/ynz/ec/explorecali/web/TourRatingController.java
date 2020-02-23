@@ -6,6 +6,8 @@ import com.ynz.ec.explorecali.domain.TourRatingPK;
 import com.ynz.ec.explorecali.repo.TourRatingRepository;
 import com.ynz.ec.explorecali.repo.TourRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.OptionalDouble;
-import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @RestController
 @RequestMapping(value = "/tours/{tourId}/ratings")
@@ -38,14 +41,17 @@ public class TourRatingController {
         tourRatingRepository.save(new TourRating(new TourRatingPK(tour, ratingDto.getCustomerId()), ratingDto.getScore(), ratingDto.getComment()));
     }
 
+    //Pageable: size(items in one page), page number, sorting by attribute(a or d sorting).
+    //Fx: URL  http://localhost:8080/tours/1/ratings?size=3&page=1$sort=score,asc
     @GetMapping
-    public List<RatingDto> getAllRatingsForTour(@PathVariable("tourId") Integer tourId) {
+    public List<RatingDto> getAllRatingsForTour(@PathVariable("tourId") Integer tourId, Pageable pageable) {
         Tour tour = verifyTourId(tourId);
 
-        return tourRatingRepository.findByRatingPKTourId(tourId)
+        Page<TourRating> tourRatingPage = tourRatingRepository.findByRatingPKTourId(tourId, pageable);
+        return tourRatingPage.getContent()
                 .stream()
                 .map(r -> new RatingDto(r.getScore(), r.getComment(), r.getRatingPK().getCustomerId()))
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @GetMapping("/average")
@@ -97,6 +103,10 @@ public class TourRatingController {
 
     /**
      * Verify and return TourRating for a specific TourRating PK(tourId, CustomerId)
+     *
+     * @param tourId     part of composite PK
+     * @param customerId part of composite PK
+     * @return specified {@link TourRating} instance.
      */
     private TourRating verifyTourRating(Integer tourId, Integer customerId) {
         return tourRatingRepository.findByRatingPKTourIdAndRatingPKCustomerId(tourId, customerId)
